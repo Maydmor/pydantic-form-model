@@ -1,4 +1,4 @@
-from .base import BaseModel
+from pydantic import BaseModel
 from .form_fields import *
 from .types import *
 from typing import get_origin, get_args, Union
