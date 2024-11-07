@@ -5,6 +5,8 @@ from typing import get_origin, get_args, Union
 from .exceptions import *
 from pydantic.fields import FieldInfo
 import logging
+from annotated_types import Gt, Lt, MinLen, MaxLen
+ 
 
 logger = logging.getLogger(__name__)
 
@@ -19,7 +21,6 @@ def is_union(annotation: type):
     return get_origin(annotation) == Union
 
 def is_list(annotation: type):
-    print(f'is list {annotation}: {get_origin(annotation)}')
     return get_origin(annotation) == FormList or get_origin(annotation) == list or get_origin == Sequence
 
 def is_object(annotation: type):
@@ -29,7 +30,6 @@ def is_custom(annotation: type):
     return get_origin(annotation) == FormCustom
 
 def get_object_type(annotation: type):
-    print(f'object args {get_args(annotation)}')
     args = get_args(annotation)
     if len(args):
         return args[0]
@@ -50,23 +50,43 @@ def is_file(annotation: type):
 def is_text(annotation: type):
     return annotation == FormText
 
+def get_validation_rules(field_name: str, field: FieldInfo):
+    validation_rules = []
+    for meta in field.metadata:
+        if isinstance(meta, Gt):
+            validation_rules.append(GreaterThan(value=meta.gt, error_text=f'{field_name} must be greater than {meta.gt}'))
+        if isinstance(meta, Lt):
+            validation_rules.append(LessThan(value=meta.lt, error_text=f'{field_name} must be less than {meta.lt}'))
+        if isinstance(meta, MinLen):
+            validation_rules.append(MinLength(length=meta.min_length, error_text=f'Minimum length of {field_name} is {meta.min_length}'))
+        if isinstance(meta, MaxLen):
+            validation_rules.append(MaxLength(length=meta.max_length, error_text=f'Maximum length of {field_name} is {meta.max_length}'))
+    schema_data = field.json_schema_extra
+    if schema_data is None:
+        schema_data = {}
+    if schema_data.get('required_if', None):
+        validation_rules.append(RequiredIf(other_field_name=schema_data.get('required_if'), error_text=f'{field_name} is required'))
+    if schema_data.get('required_unless', None):
+        validation_rules.append(RequiredUnless(other_field_name=schema_data.get('required_unless'), error_text=f'{field_name} is required'))
+    if schema_data.get('same_as', None):
+        validation_rules.append(SameAs(other_field_name=schema_data.get('same_as'), error_text=f'{field_name} must be same as {schema_data.get("same_as")}'))
+    if not is_union(field.annotation):
+        validation_rules.append(Required(error_text=f'{field_name} is required.'))
+    return validation_rules
+
 def to_form_field(field_name: str, field: FieldInfo)->FormField:
     annotation = field.annotation
-    is_optional = False
     field_schema = field.json_schema_extra
     if field_schema is None:
         field_schema = {}
-    print(f'field_name: {field.annotation}')
-    validation_rules = []
+    validation_rules = get_validation_rules(field_schema.get('label', field_name), field)
+    field_definition = {
+        'name': field_name,
+        'validation_rules': validation_rules
+    } | field_schema
     try:
         if is_union(annotation):
-            annotation = unpack_union(annotation)
-        else:
-            validation_rules.append(Required(error_text=field_schema.get('required_error_message', f'{field_schema.get('label', field_name)} is required.')))
-        field_definition = {
-            'name': field_name,
-            'validation_rules': validation_rules
-        } | field_schema
+            annotation = unpack_union(annotation)        
         if is_select(annotation):
             return SelectField.model_validate(field_definition)
         elif is_file(annotation):

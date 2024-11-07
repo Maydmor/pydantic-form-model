@@ -47,7 +47,6 @@ class RequiredIf(Required):
     
 class RequiredUnless(RequiredIf):
     name: Literal[ValidationRuleName.REQUIRED_UNLESS] = ValidationRuleName.REQUIRED_UNLESS
-    pass
 
 class SameAs(ValidationRule):
     name: Literal[ValidationRuleName.SAME_AS] = ValidationRuleName.SAME_AS

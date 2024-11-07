@@ -1,13 +1,13 @@
 from pydantic_form_model import FormModel
 from pydantic_form_model.form_fields import *
-from pydantic import Field
+from pydantic import Field, EmailStr
 from typing import Optional
 
 class Address(FormModel):
     zip_code: str
 
 class FormA(FormModel):
-    username: FormText = Field(label='Username or E-Mail', hint="Yours")
+    username: str = Field(label='Username or E-Mail', hint="Yours", min_length=10)
     password: FormText
     address: Optional[FormObject[Address]] = None
     numbers: FormList[int]
