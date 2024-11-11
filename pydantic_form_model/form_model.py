@@ -24,7 +24,7 @@ def is_list(annotation: type):
     return get_origin(annotation) == FormList or get_origin(annotation) == list or get_origin == Sequence
 
 def is_object(annotation: type):
-    return get_origin(annotation) == FormObject or get_origin(annotation) == BaseModel or issubclass(annotation, BaseModel)
+    return issubclass(annotation, FormModel)
 
 def is_custom(annotation: type):
     return get_origin(annotation) == FormCustom
