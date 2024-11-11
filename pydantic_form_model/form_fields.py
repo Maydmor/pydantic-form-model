@@ -37,6 +37,7 @@ class ValidationRuleName(str, Enum):
     LESS_THAN = 'less_than'
 
 class ValidationRule(BaseModel):
+    model_config: ConfigDict = ConfigDict(alias_generator=camelize, populate_by_name=True)
     name: ValidationRuleName
     error_text: str
     
