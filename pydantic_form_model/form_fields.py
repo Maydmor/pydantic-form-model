@@ -1,10 +1,12 @@
-from pydantic import BaseModel, TypeAdapter
+from pydantic import BaseModel, ConfigDict, TypeAdapter
 from pydantic_core.core_schema import IntSchema, FloatSchema, StringSchema, ModelSchema, ListSchema, CoreSchemaType
 from typing import Optional, TypeVar, Literal, Type, IO, Annotated
 from enum import Enum
 import base64
 from io import BytesIO
 from .types import *
+from humps import camelize
+
 class Base64File(BaseModel):
     filename: str
     data: str
@@ -80,6 +82,7 @@ class FormFieldType(str, Enum):
 
 
 class FormField(BaseModel):
+    model_config: ConfigDict = ConfigDict(alias_generator=lambda name: camelize(name), populate_by_name=True)
     type: FormFieldType
     name: Optional[str] = None
     hint: Optional[str] = None
