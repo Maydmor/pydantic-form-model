@@ -29,7 +29,8 @@ def is_object(annotation: type):
 def is_custom(annotation: type):
     return get_origin(annotation) == FormCustom
 def is_boolean(annotation: type):
-    return get_origin(annotation) == FormBoolean or get_origin(annotation) == bool
+    return annotation == FormBoolean or annotation == bool 
+
 def get_object_type(annotation: type):
     args = get_args(annotation)
     if len(args):
