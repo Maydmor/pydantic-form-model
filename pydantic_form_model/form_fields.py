@@ -6,6 +6,7 @@ import base64
 from io import BytesIO
 from .types import *
 from humps import camelize
+from typing import Union, ForwardRef
 
 class Base64File(BaseModel):
     filename: str
@@ -113,13 +114,15 @@ class BooleanField(FormField):
     type: Literal[FormFieldType.BOOLEAN] = FormFieldType.BOOLEAN
     tri_state: Optional[bool] = False
 
+ListField = ForwardRef('ListField')
 class ObjectField(FormField):
     type: Literal[FormFieldType.OBJECT] = FormFieldType.OBJECT
-    item_properties: list['ListField'|'SelectField'|'ObjectField'|'BooleanField'|'ObjectField'|'FormField']
+    item_properties: list[Union[ListField, SelectField, 'ObjectField', BooleanField, FormField]]
 
 class ListField(FormField):
     type: Literal[FormFieldType.LIST] = FormFieldType.LIST
-    item_definition: 'ListField'|'SelectField'|'ObjectField'|'BooleanField'|'ObjectField'|'FormField'
+    item_definition: Union[ListField, SelectField, ObjectField, BooleanField, FormField]
 
+ListField.model_rebuild()
 class CustomField(FormField):
     type: str
