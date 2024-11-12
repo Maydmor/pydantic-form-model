@@ -115,11 +115,11 @@ class BooleanField(FormField):
 
 class ObjectField(FormField):
     type: Literal[FormFieldType.OBJECT] = FormFieldType.OBJECT
-    item_properties: list[FormField]
+    item_properties: list['ListField'|'SelectField'|'ObjectField'|'BooleanField'|'ObjectField'|'FormField']
 
 class ListField(FormField):
     type: Literal[FormFieldType.LIST] = FormFieldType.LIST
-    item_definition: FormField
+    item_definition: 'ListField'|'SelectField'|'ObjectField'|'BooleanField'|'ObjectField'|'FormField'
 
 class CustomField(FormField):
     type: str
