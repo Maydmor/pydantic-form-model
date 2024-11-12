@@ -115,7 +115,7 @@ class BooleanField(FormField):
 
 class ObjectField(FormField):
     type: Literal[FormFieldType.OBJECT] = FormFieldType.OBJECT
-    properties: list[FormField]
+    item_properties: list[FormField]
 
 class ListField(FormField):
     type: Literal[FormFieldType.LIST] = FormFieldType.LIST

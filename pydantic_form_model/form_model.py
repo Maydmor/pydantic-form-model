@@ -98,7 +98,7 @@ def to_form_field(field_name: str, field: FieldInfo)->FormField:
             field_definition['item_definition'] = to_form_field(field_name + '_item', FieldInfo(annotation=list_item_type)) 
             return ListField.model_validate(field_definition)
         elif is_object(annotation):
-            field_definition['properties'] = get_object_type(annotation).get_form_fields() 
+            field_definition['item_properties'] = get_object_type(annotation).get_form_fields() 
             return ObjectField.model_validate(field_definition)
         elif is_number(annotation):
             return NumberField.model_validate(field_definition)
