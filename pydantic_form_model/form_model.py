@@ -28,7 +28,8 @@ def is_object(annotation: type):
 
 def is_custom(annotation: type):
     return get_origin(annotation) == FormCustom
-
+def is_boolean(annotation: type):
+    return get_origin(annotation) == FormBoolean or get_origin(annotation) == bool
 def get_object_type(annotation: type):
     args = get_args(annotation)
     if len(args):
@@ -104,6 +105,8 @@ def to_form_field(field_name: str, field: FieldInfo)->FormField:
             return NumberField.model_validate(field_definition)
         elif is_text(annotation):
             return TextField.model_validate(field_definition)
+        elif is_boolean(annotation):
+            return BooleanField.model_validate(field_definition)
         else:
             raise InvalidDefinitionException(f'Invalid field annotation {field_name}: {annotation}')
     except InvalidDefinitionException as e:
