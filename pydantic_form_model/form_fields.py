@@ -6,17 +6,7 @@ import base64
 from io import BytesIO
 from .types import *
 from humps import camelize
-from typing import Union, ForwardRef
-
-class Base64File(BaseModel):
-    filename: str
-    data: str
-    content_type: str
-    
-    def write(self, file: IO):
-        file_data = BytesIO()
-        base64.decode(self.data, file_data)
-        file.write(file_data)
+from typing import Union, ForwardRef, Any
 
 PydanticModelType = TypeVar('PydanticModelType', bound=BaseModel)
 
@@ -26,7 +16,7 @@ DataSource = str
 
 
 
-FormValue = FormList|FormObject|FormText|FormNumber|FormSelect|FormBoolean|FormFile
+# FormValue = FormList|FormObject|FormText|FormNumber|FormSelect|FormBoolean|FormFile
 class ValidationRuleName(str, Enum):
     REQUIRED = 'required'
     REQUIRED_IF = 'required_if'
@@ -88,7 +78,7 @@ class FormField(BaseModel):
     type: FormFieldType
     name: Optional[str] = None
     hint: Optional[str] = None
-    default: Optional[FormValue] = None
+    default: Optional[Any] = None
     rendered: Optional[bool] = True
     render_condition: Optional[RenderCondition] = None
     label: Optional[str] = None
@@ -105,7 +95,7 @@ class FileField(FormField):
 
 class SelectField(FormField):
     type: Literal[FormFieldType.SELECT] = FormFieldType.SELECT
-    choices: Optional[list[FormObject|FormText|FormNumber]] = None
+    choices: Optional[list[Any]] = None
     data_source: Optional[DataSource] = None
     item_value: Optional[str] = None
     item_text: Optional[str] = None
@@ -115,14 +105,15 @@ class BooleanField(FormField):
     tri_state: Optional[bool] = False
 
 ListField = ForwardRef('ListField')
+class CustomField(FormField):
+    type: str
+
 class ObjectField(FormField):
     type: Literal[FormFieldType.OBJECT] = FormFieldType.OBJECT
-    item_properties: list[Union[ListField, SelectField, 'ObjectField', BooleanField, FormField]]
+    item_properties: list[Any]
 
 class ListField(FormField):
     type: Literal[FormFieldType.LIST] = FormFieldType.LIST
-    item_definition: Union[ListField, SelectField, ObjectField, BooleanField, FormField]
+    item_definition: Any
 
 ListField.model_rebuild()
-class CustomField(FormField):
-    type: str
