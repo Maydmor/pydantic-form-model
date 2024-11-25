@@ -90,9 +90,7 @@ def to_form_field(field_name: str, field: FieldInfo)->FormField:
         'name': field_name,
         'validation_rules': validation_rules
     } | field_schema
-    print()
     logger.debug(f'annotation: {annotation}, schema: {field_definition}, validation rules: {validation_rules}')
-    print()
     try:
         if is_union(annotation):
             annotation = unpack_union(annotation)        
