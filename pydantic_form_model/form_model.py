@@ -1,7 +1,7 @@
 from pydantic import BaseModel
 from .form_fields import *
 from .types import *
-from typing import get_origin, get_args, Union
+from typing import get_origin, get_args, Union, Annotated
 from .exceptions import *
 from pydantic.fields import FieldInfo
 import logging
@@ -16,6 +16,9 @@ def unpack_union(annotation: type):
         raise InvalidDefinitionException(f'Only Union[T, NoneType] (=Optional[T]) is supported, but type is {annotation}')
     if get_args(annotation)[1] != type(None):
         raise InvalidDefinitionException(f'Only Union[T, NoneType] (=Optional[T]) is supported, but type is {annotation}')
+    return get_args(annotation)[0]
+
+def unpack_annotated(annotation: type):
     return get_args(annotation)[0]
 
 def is_union(annotation: type):
@@ -54,9 +57,10 @@ def is_file(annotation: type):
     return inspect.isclass(annotation) and issubclass(annotation, Base64File) 
 
 def is_literal(annotation: type):
-
     return get_origin(annotation) == Literal
 
+def is_annotated(annotation: type):
+    return get_origin(annotation) == Annotated
 def is_text(annotation: type):
     return annotation == FormText
 
@@ -98,6 +102,8 @@ def to_form_field(field_name: str, field: FieldInfo)->FormField:
     } | field_schema
     logger.debug(f'{field_name} = annotation: {annotation}, schema: {field_definition}, validation rules: {validation_rules}')
     try:
+        if is_annotated(annotation):
+            annotation = unpack_annotated(annotation)
         if is_union(annotation):
             annotation = unpack_union(annotation)        
         if is_custom(annotation):
