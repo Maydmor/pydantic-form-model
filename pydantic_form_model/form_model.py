@@ -83,14 +83,16 @@ def get_validation_rules(field_name: str, field: FieldInfo):
 def to_form_field(field_name: str, field: FieldInfo)->FormField:
     annotation = field.annotation
     field_schema = field.json_schema_extra
+    
     if field_schema is None:
         field_schema = {}
     validation_rules = get_validation_rules(field_schema.get('label', field_name), field)
     field_definition = {
         'name': field_name,
-        'validation_rules': validation_rules
+        'validation_rules': validation_rules,
+        'default': field.default
     } | field_schema
-    logger.debug(f'annotation: {annotation}, schema: {field_definition}, validation rules: {validation_rules}')
+    logger.debug(f'{field_name} = annotation: {annotation}, schema: {field_definition}, validation rules: {validation_rules}')
     try:
         if is_union(annotation):
             annotation = unpack_union(annotation)        

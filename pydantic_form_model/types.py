@@ -30,7 +30,7 @@ class File(Generic[T]):
 class Base64FileData(BaseModel):
     data: Optional[str]
     filename: Optional[str]
-    @field_serializer('base64_data')
+    @field_serializer('data')
     def serialize_base64_data(self, base_64_data: str):
         return None
 
