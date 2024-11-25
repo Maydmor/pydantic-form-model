@@ -53,6 +53,10 @@ def is_file(annotation: type):
     
     return inspect.isclass(annotation) and issubclass(annotation, Base64File) 
 
+def is_literal(annotation: type):
+
+    return get_origin(annotation) == Literal
+
 def is_text(annotation: type):
     return annotation == FormText
 
@@ -113,6 +117,8 @@ def to_form_field(field_name: str, field: FieldInfo)->FormField:
             return NumberField.model_validate(field_definition)
         elif is_text(annotation):
             return TextField.model_validate(field_definition)
+        elif is_literal(annotation):
+            return TextField.model_validate(field_definition | {'rendered': False})
         elif is_boolean(annotation):
             return BooleanField.model_validate(field_definition)
         else:
