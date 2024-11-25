@@ -28,7 +28,7 @@ class File(Generic[T]):
         raise Exception('Not implemented')
 
 class Base64FileData(BaseModel):
-    base64_data: Optional[str]
+    data: Optional[str]
     filename: Optional[str]
     @field_serializer('base64_data')
     def serialize_base64_data(self, base_64_data: str):

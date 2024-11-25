@@ -133,7 +133,7 @@ class FormModel(BaseModel):
     def save_file(self, directory: PathLike, file_data: Base64File):
         file_data = Base64FileData.model_validate(file_data)
         with open(f'{directory}/{file_data.filename}', 'wb') as f:
-            f.write(base64.b64decode(file_data.base64_data))
+            f.write(base64.b64decode(file_data.data))
 
     def save_files(self, directory: PathLike):
         for field_name, field_info in self.model_fields.items():
