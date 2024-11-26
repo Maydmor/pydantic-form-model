@@ -11,16 +11,13 @@ from os import PathLike
 
 logger = logging.getLogger(__name__)
 logger.debug('Test message')
-def unpack_union(annotation: type):
-    if len(get_args(annotation)) != 2:
-        raise InvalidDefinitionException(f'Only Union[T, NoneType] (=Optional[T]) is supported, but type is {annotation}')
-    # if get_args(annotation)[1] != type(None):
-    #     raise InvalidDefinitionException(f'Only Union[T, NoneType] (=Optional[T]) is supported, but type is {annotation}')
-    return get_args(annotation)[0]
 
-def unpack_annotated(annotation: type):
-    logger.debug(f'annotated args: {get_args(annotation)}')
-    return get_args(annotation)[0]
+
+def unpack_annotation(annotation: type):
+    while(is_union(annotation) or is_annotated(annotation)):
+        annotation = get_args(annotation)[0]
+    return annotation
+    
 
 def is_union(annotation: type):
     return get_origin(annotation) == Union
@@ -103,10 +100,7 @@ def to_form_field(field_name: str, field: FieldInfo)->FormField:
     } | field_schema
     logger.debug(f'{field_name} = annotation: {annotation}, schema: {field_definition}, validation rules: {validation_rules}')
     try:
-        if is_annotated(annotation):
-            annotation = unpack_annotated(annotation)
-        if is_union(annotation):
-            annotation = unpack_union(annotation)        
+        annotation = unpack_annotation(annotation)            
         if is_custom(annotation):
             return CustomField.model_validate(field_definition)
         elif is_select(annotation):
