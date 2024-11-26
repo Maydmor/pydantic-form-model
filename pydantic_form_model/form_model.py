@@ -14,11 +14,12 @@ logger.debug('Test message')
 def unpack_union(annotation: type):
     if len(get_args(annotation)) != 2:
         raise InvalidDefinitionException(f'Only Union[T, NoneType] (=Optional[T]) is supported, but type is {annotation}')
-    if get_args(annotation)[1] != type(None):
-        raise InvalidDefinitionException(f'Only Union[T, NoneType] (=Optional[T]) is supported, but type is {annotation}')
+    # if get_args(annotation)[1] != type(None):
+    #     raise InvalidDefinitionException(f'Only Union[T, NoneType] (=Optional[T]) is supported, but type is {annotation}')
     return get_args(annotation)[0]
 
 def unpack_annotated(annotation: type):
+    logger.debug(f'annotated args: {get_args(annotation)}')
     return get_args(annotation)[0]
 
 def is_union(annotation: type):
