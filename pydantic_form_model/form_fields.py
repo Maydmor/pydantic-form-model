@@ -80,7 +80,7 @@ class FormFieldType(str, Enum):
 class FormField(BaseModel):
     model_config: ConfigDict = ConfigDict(alias_generator=lambda name: camelize(name), populate_by_name=True)
     type: FormFieldType
-    name: Optional[str] = None
+    name: str
     hint: Optional[str] = None
     default: Optional[Any] = None
     rendered: Optional[bool] = True
