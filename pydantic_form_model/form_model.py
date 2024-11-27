@@ -170,7 +170,7 @@ class FormModel(BaseModel):
                     for file_data in getattr(self, field_name):
                         self.save_file(directory, file_data)
                 elif is_object(list_item_type):
-                    get_object_type(annotation).save_files(directory)
+                    get_object_type(annotation).model_validate(getattr(self, field_name)).save_files(directory)
             elif is_file(annotation):
                 file_data: Base64File = getattr(self, field_name)
                 if file_data:
