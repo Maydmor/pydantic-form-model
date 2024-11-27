@@ -85,7 +85,7 @@ def get_validation_rules(field_name: str, field: FieldInfo):
         validation_rules.append(RequiredUnless(other_field_name=schema_data.get('required_unless'), error_text=f'{field_name} is required'))
     if schema_data.get('same_as', None):
         validation_rules.append(SameAs(other_field_name=schema_data.get('same_as'), error_text=f'{field_name} must be same as {schema_data.get("same_as")}'))
-    if not is_union(field.annotation):
+    if not is_union(field.annotation) and not field.default:
         validation_rules.append(Required(error_text=f'{field_name} is required.'))
     return validation_rules
 class SomeENum(Enum):
