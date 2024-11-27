@@ -87,6 +87,12 @@ class FormField(BaseModel):
     render_condition: Optional[RenderCondition] = None
     label: Optional[str] = None
     validation_rules: list[ValidationRule] = []
+    item_definition: Optional[Any] = None
+    choices: Optional[list[Any]] = None
+    data_source: Optional[DataSource] = None
+    item_value: Optional[str] = None
+    item_text: Optional[str] = None
+    item_properties: Optional[list[Any]] = None
     meta: Optional[dict[str, Any]] = {}
 
 class NumberField(FormField):
