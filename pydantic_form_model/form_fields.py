@@ -83,6 +83,7 @@ class FormField(BaseModel):
     render_condition: Optional[RenderCondition] = None
     label: Optional[str] = None
     validation_rules: list[ValidationRule] = []
+    meta: dict[str, Any] = {}
 
 class NumberField(FormField):
     type: Literal[FormFieldType.NUMBER] = FormFieldType.NUMBER

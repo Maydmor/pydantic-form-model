@@ -96,8 +96,10 @@ def to_form_field(field_name: str, field: FieldInfo)->FormField:
     field_definition = {
         'name': field_name,
         'validation_rules': validation_rules,
-        'default': field.default
+        'default': field.default,
+        'meta': field.json_schema_extra
     } | field_schema
+    
     logger.debug(f'{field_name} = annotation: {annotation}, schema: {field_definition}, validation rules: {validation_rules}')
     try:
         annotation = unpack_annotation(annotation)            
