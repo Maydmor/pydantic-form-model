@@ -25,6 +25,9 @@ def is_union(annotation: type):
 def is_list(annotation: type):
     return get_origin(annotation) == list or get_origin == Sequence
 
+def is_dict(annotation: type):
+    return annotation == dict
+
 def is_object(annotation: type):
     return inspect.isclass(annotation) and issubclass(annotation, FormModel)
 
@@ -116,6 +119,8 @@ def to_form_field(field_name: str, field: FieldInfo)->FormField:
         elif is_object(annotation):
             field_definition['item_properties'] = get_object_type(annotation).get_form_fields() 
             return ObjectField.model_validate(field_definition)
+        elif is_dict(annotation):
+            logger.warning(f'dict is currently not supported')
         elif is_number(annotation):
             return NumberField.model_validate(field_definition)
         elif is_text(annotation):
@@ -147,13 +152,12 @@ class FormModel(BaseModel):
     def save_files(self, directory: PathLike):
         for field_name, field_info in self.model_fields.items():
             annotation = field_info.annotation
-            if is_union(annotation):
-                annotation = unpack_union(annotation)
+            annotation = unpack_annotation(annotation)
 
             if is_list(annotation):
                 list_item_type = get_list_item_type(annotation)
                 if is_union(list_item_type):
-                    list_item_type = unpack_union(list_item_type)
+                    list_item_type = unpack_annotation(list_item_type)
                 logger.debug(f'list with child item type: {list_item_type}')
                 if is_file(list_item_type):
                     for file_data in getattr(self, field_name):
