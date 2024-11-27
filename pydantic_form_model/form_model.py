@@ -121,6 +121,7 @@ def to_form_field(field_name: str, field: FieldInfo)->FormField:
             return ObjectField.model_validate(field_definition)
         elif is_dict(annotation):
             logger.warning(f'dict is currently not supported')
+            return None
         elif is_number(annotation):
             return NumberField.model_validate(field_definition)
         elif is_text(annotation):
@@ -141,7 +142,9 @@ class FormModel(BaseModel):
     def get_form_fields(cls)->list[FormField]:
         fields = []
         for field_name, field_info in cls.model_fields.items():
-            fields.append(to_form_field(field_name, field_info))
+            form_field = to_form_field(field_name, field_info)
+            if form_field:
+                fields.append(form_field)
         return fields
     
     def save_file(self, directory: PathLike, file_data: Base64File):
