@@ -31,6 +31,10 @@ class ValidationRule(BaseModel):
     model_config: ConfigDict = ConfigDict(alias_generator=camelize, populate_by_name=True)
     name: ValidationRuleName
     error_text: str
+    other_field_name: Optional[str] = None
+    length: Optional[int] = None
+    value: Optional[float] = None
+    has_value: Optional[bool] = None
     
 class Required(ValidationRule):
     name: Literal[ValidationRuleName.REQUIRED] = ValidationRuleName.REQUIRED
