@@ -88,7 +88,8 @@ def get_validation_rules(field_name: str, field: FieldInfo):
     if not is_union(field.annotation):
         validation_rules.append(Required(error_text=f'{field_name} is required.'))
     return validation_rules
-
+class SomeENum(Enum):
+    pass
 def to_form_field(field_name: str, field: FieldInfo)->FormField:
     annotation = field.annotation
     field_schema = field.json_schema_extra
@@ -109,7 +110,10 @@ def to_form_field(field_name: str, field: FieldInfo)->FormField:
         if is_custom(annotation):
             return CustomField.model_validate(field_definition)
         elif is_select(annotation):
-            return SelectField.model_validate(field_definition)
+            choices = []
+            for enum_member in annotation:
+                choices.append(enum_member.value)
+            return SelectField.model_validate(field_definition | {'choices': choices})
         elif is_file(annotation):
             return FileField.model_validate(field_definition)
         elif is_list(annotation):
