@@ -2,10 +2,11 @@ from typing import Any, Sequence, TypeVar, Generic
 
 from pydantic_core import ValidationError, core_schema
 from typing_extensions import get_args
-
-from pydantic import BaseModel, GetCoreSchemaHandler, field_serializer
+import base64
+from pydantic import BaseModel, GetCoreSchemaHandler, field_serializer, FieldSerializationInfo
 from typing import get_origin, Optional
 from os import PathLike
+from io import BytesIO
 T = TypeVar('T')
 
 
@@ -28,11 +29,17 @@ class File(Generic[T]):
         raise Exception('Not implemented')
 
 class Base64FileData(BaseModel):
-    data: Optional[str]
-    name: Optional[str]
+    data: Optional[str] = None
+    name: Optional[str] = None
+    path: Optional[str] = None
     @field_serializer('data')
-    def serialize_base64_data(self, base_64_data: str):
+    def serialize_base64_data(self, base_64_data: str, info: FieldSerializationInfo):
+        if not info.mode_is_json():
+            if self.path:
+                with open(self.path, 'rb') as f:
+                    return base64.b64encode(f.read()).decode()
         return None
+    
 
 class Base64File(Base64FileData, File[Base64FileData]):
     pass
