@@ -184,7 +184,7 @@ class FormModel(BaseModel):
 
     def remove_file_data(self):
         for file_data_field in self.file_data_fields():
-            del file_data_field.data
+            file_data_field.data = None
         return self
     
     def load_file_data(self, directory: PathLike):
@@ -196,8 +196,8 @@ class FormModel(BaseModel):
     def save_files(self, directory: PathLike):
         for file_data_field in self.file_data_fields():
              self.save_file(directory, file_data_field)
-    
-    
+        return self
+
             
     # def save_files(self, directory: PathLike):
     #     for field_name, field_info in self.model_fields.items():
