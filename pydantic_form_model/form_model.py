@@ -153,32 +153,75 @@ class FormModel(BaseModel):
     
     def save_file(self, directory: PathLike, file_data: Base64File):
         file_data = Base64FileData.model_validate(file_data)
-        with open(f'{directory}/{file_data.name}', 'wb') as f:
-            f.write(base64.b64decode(file_data.data))
+        if file_data.data:
+            with open(f'{directory}/{file_data.name}', 'wb') as f:
+                f.write(base64.b64decode(file_data.data))
 
-    def save_files(self, directory: PathLike):
+    def file_data_fields(self):
+        file_data_fields = []
         for field_name, field_info in self.model_fields.items():
             annotation = field_info.annotation
             annotation = unpack_annotation(annotation)
-
             if is_list(annotation):
                 list_item_type = get_list_item_type(annotation)
                 if is_union(list_item_type):
                     list_item_type = unpack_annotation(list_item_type)
                 logger.debug(f'list with child item type: {list_item_type}')
                 if is_file(list_item_type):
+
                     for file_data in getattr(self, field_name):
-                        file_data.path = Path(directory).joinpath(file_data.name).as_posix()
-                        self.save_file(directory, file_data)
+                        file_data_fields.append(file_data)
                 elif is_object(list_item_type):
                     for item in getattr(self, field_name):
-                        get_object_type(list_item_type).model_validate(item).save_files(directory)
+                        file_data_fields += getattr(self, field_name).file_data_fields()
             elif is_file(annotation):
                 file_data: Base64File = getattr(self, field_name)
                 if file_data:
-                    file_data.path = Path(directory).joinpath(file_data.name).as_posix()
-                    self.save_file(directory, file_data)
+                    file_data_fields.append(file_data)
             elif is_object(annotation):
-                get_object_type(annotation).model_validate(getattr(self, field_name)).save_files(directory)
+                file_data_fields += getattr(self, field_name).file_data_fields()
+        return file_data_fields
+
+    def remove_file_data(self):
+        for file_data_field in self.file_data_fields():
+            del file_data_field.data
+        return self
+    
+    def load_file_data(self, directory: PathLike):
+        for file_data_field in self.file_data_fields():
+            with open(Path(directory).joinpath(file_data_field.name), 'rb') as f:
+                file_data_field.data = base64.b64encode(f.read()).decode()
+        return self
+
+    def save_files(self, directory: PathLike):
+        for file_data_field in self.file_data_fields():
+             self.save_file(directory, file_data_field)
+    
+    
+            
+    # def save_files(self, directory: PathLike):
+    #     for field_name, field_info in self.model_fields.items():
+    #         annotation = field_info.annotation
+    #         annotation = unpack_annotation(annotation)
+
+    #         if is_list(annotation):
+    #             list_item_type = get_list_item_type(annotation)
+    #             if is_union(list_item_type):
+    #                 list_item_type = unpack_annotation(list_item_type)
+    #             logger.debug(f'list with child item type: {list_item_type}')
+    #             if is_file(list_item_type):
+    #                 for file_data in getattr(self, field_name):
+    #                     file_data.path = Path(directory).joinpath(file_data.name).as_posix()
+    #                     self.save_file(directory, file_data)
+    #             elif is_object(list_item_type):
+    #                 for item in getattr(self, field_name):
+    #                     get_object_type(list_item_type).model_validate(item).save_files(directory)
+    #         elif is_file(annotation):
+    #             file_data: Base64File = getattr(self, field_name)
+    #             if file_data:
+    #                 file_data.path = Path(directory).joinpath(file_data.name).as_posix()
+    #                 self.save_file(directory, file_data)
+    #         elif is_object(annotation):
+    #             get_object_type(annotation).model_validate(getattr(self, field_name)).save_files(directory)
 
 

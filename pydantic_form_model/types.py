@@ -31,14 +31,7 @@ class File(Generic[T]):
 class Base64FileData(BaseModel):
     data: Optional[str] = None
     name: Optional[str] = None
-    path: Optional[str] = None
-    @field_serializer('data')
-    def serialize_base64_data(self, base_64_data: str, info: FieldSerializationInfo):
-        if not info.mode_is_json():
-            if self.path:
-                with open(self.path, 'rb') as f:
-                    return base64.b64encode(f.read()).decode()
-        return None
+
     
 
 class Base64File(Base64FileData, File[Base64FileData]):
