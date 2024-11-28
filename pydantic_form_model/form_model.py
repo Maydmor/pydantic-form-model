@@ -8,7 +8,7 @@ import logging
 from annotated_types import Gt, Lt, MinLen, MaxLen
 import inspect, base64
 from os import PathLike
-
+from pathlib import Path
 logger = logging.getLogger(__name__)
 logger.debug('Test message')
 
@@ -153,7 +153,7 @@ class FormModel(BaseModel):
     
     def save_file(self, directory: PathLike, file_data: Base64File):
         file_data = Base64FileData.model_validate(file_data)
-        with open(f'{directory}/{file_data.filename}', 'wb') as f:
+        with open(f'{directory}/{file_data.name}', 'wb') as f:
             f.write(base64.b64decode(file_data.data))
 
     def save_files(self, directory: PathLike):
@@ -168,12 +168,14 @@ class FormModel(BaseModel):
                 logger.debug(f'list with child item type: {list_item_type}')
                 if is_file(list_item_type):
                     for file_data in getattr(self, field_name):
+                        file_data.path = Path(directory).joinpath(file_data.name).as_posix()
                         self.save_file(directory, file_data)
                 elif is_object(list_item_type):
                     get_object_type(annotation).model_validate(getattr(self, field_name)).save_files(directory)
             elif is_file(annotation):
                 file_data: Base64File = getattr(self, field_name)
                 if file_data:
+                    file_data.path = Path(directory).joinpath(file_data.name).as_posix()
                     self.save_file(directory, file_data)
             elif is_object(annotation):
                 get_object_type(annotation).model_validate(getattr(self, field_name)).save_files(directory)
