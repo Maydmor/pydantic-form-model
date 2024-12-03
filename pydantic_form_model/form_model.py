@@ -179,7 +179,8 @@ class FormModel(BaseModel):
                 if file_data:
                     file_data_fields.append(file_data)
             elif is_object(annotation):
-                file_data_fields += getattr(self, field_name).file_data_fields()
+                if getattr(self, field_name):
+                    file_data_fields += getattr(self, field_name).file_data_fields()
         return file_data_fields
 
     def remove_file_data(self):
