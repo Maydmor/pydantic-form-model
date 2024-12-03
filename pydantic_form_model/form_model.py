@@ -173,7 +173,7 @@ class FormModel(BaseModel):
                         file_data_fields.append(file_data)
                 elif is_object(list_item_type):
                     for item in getattr(self, field_name):
-                        file_data_fields += getattr(self, field_name).file_data_fields()
+                        file_data_fields += item.file_data_fields()
             elif is_file(annotation):
                 file_data: Base64File = getattr(self, field_name)
                 if file_data:
