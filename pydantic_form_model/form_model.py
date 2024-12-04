@@ -17,8 +17,11 @@ def unpack_annotation(annotation: type):
     while(is_union(annotation) or is_annotated(annotation)):
         annotation = get_args(annotation)[0]
     return annotation
-    
 
+def unpack_custom(annotation: type):
+    while(is_custom(annotation)):
+        annotation = get_args(annotation)[0]
+    return annotation
 def is_union(annotation: type):
     return get_origin(annotation) == Union
 
@@ -163,6 +166,8 @@ class FormModel(BaseModel):
         for field_name, field_info in self.model_fields.items():
             annotation = field_info.annotation
             annotation = unpack_annotation(annotation)
+            if is_custom(annotation):
+                annotation = unpack_custom(annotation)
             if is_list(annotation):
                 list_item_type = get_list_item_type(annotation)
                 if is_union(list_item_type):
