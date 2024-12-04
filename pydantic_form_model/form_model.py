@@ -106,7 +106,7 @@ def to_form_field(field_name: str, field: FieldInfo)->FormField:
     
     logger.debug(f'{field_name} = annotation: {annotation}, schema: {field_definition}, validation rules: {validation_rules}')
     try:
-        annotation = unpack_annotation(annotation)            
+        annotation = unpack_annotation(annotation)
         if is_custom(annotation):
             return CustomField.model_validate(field_definition)
         elif is_select(annotation):
@@ -118,7 +118,8 @@ def to_form_field(field_name: str, field: FieldInfo)->FormField:
             return FileField.model_validate(field_definition)
         elif is_list(annotation):
             list_item_type = get_list_item_type(annotation)
-            field_definition['item_definition'] = to_form_field(field_name + '_item', FieldInfo(annotation=list_item_type)) 
+            field_info = field.from_annotated_attribute(list_item_type, default=None)
+            field_definition['item_definition'] = to_form_field(field_name + '_item', field_info) 
             return ListField.model_validate(field_definition)
         elif is_object(annotation):
             field_definition['item_properties'] = get_object_type(annotation).get_form_fields() 
