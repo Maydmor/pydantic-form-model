@@ -72,6 +72,7 @@ class FormFieldType(str, Enum):
     LIST = 'list'
     NUMBER = 'number'
     TEXT = 'text'
+    DATETIME = 'datetime'
     SELECT = 'select'
     FILE = 'file'
     BOOLEAN = 'boolean'
@@ -79,7 +80,7 @@ class FormFieldType(str, Enum):
 
 class FormField(BaseModel):
     model_config: ConfigDict = ConfigDict(alias_generator=lambda name: camelize(name), populate_by_name=True)
-    type: FormFieldType
+    field_type: FormFieldType
     name: str
     hint: Optional[str] = None
     default: Optional[Any] = None
@@ -96,35 +97,39 @@ class FormField(BaseModel):
     meta: Optional[dict[str, Any]] = {}
 
 class NumberField(FormField):
-    type: Literal[FormFieldType.NUMBER] = FormFieldType.NUMBER
+    field_type: Literal[FormFieldType.NUMBER] = FormFieldType.NUMBER
 
 class TextField(FormField):
-    type: Literal[FormFieldType.TEXT] = FormFieldType.TEXT
+    field_type: Literal[FormFieldType.TEXT] = FormFieldType.TEXT
+
+class DateTimeField(FormField):
+    field_type: Literal[FormFieldType.DATETIME] = FormFieldType.DATETIME 
+
 
 class FileField(FormField):
-    type: Literal[FormFieldType.FILE] = FormFieldType.FILE
+    field_type: Literal[FormFieldType.FILE] = FormFieldType.FILE
 
 class SelectField(FormField):
-    type: Literal[FormFieldType.SELECT] = FormFieldType.SELECT
+    field_type: Literal[FormFieldType.SELECT] = FormFieldType.SELECT
     choices: Optional[list[Any]] = None
     data_source: Optional[DataSource] = None
     item_value: Optional[str] = None
     item_text: Optional[str] = None
 
 class BooleanField(FormField):
-    type: Literal[FormFieldType.BOOLEAN] = FormFieldType.BOOLEAN
+    field_type: Literal[FormFieldType.BOOLEAN] = FormFieldType.BOOLEAN
     tri_state: Optional[bool] = False
 
 ListField = ForwardRef('ListField')
 class CustomField(FormField):
-    type: str
+    field_type: str
 
 class ObjectField(FormField):
-    type: Literal[FormFieldType.OBJECT] = FormFieldType.OBJECT
+    field_type: Literal[FormFieldType.OBJECT] = FormFieldType.OBJECT
     item_properties: list[Any]
 
 class ListField(FormField):
-    type: Literal[FormFieldType.LIST] = FormFieldType.LIST
+    field_type: Literal[FormFieldType.LIST] = FormFieldType.LIST
     item_definition: Any
 
 ListField.model_rebuild()

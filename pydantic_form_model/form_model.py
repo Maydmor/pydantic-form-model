@@ -9,6 +9,7 @@ from annotated_types import Gt, Lt, MinLen, MaxLen
 import inspect, base64
 from os import PathLike
 from pathlib import Path
+from datetime import datetime
 logger = logging.getLogger(__name__)
 logger.debug('Test message')
 
@@ -22,6 +23,7 @@ def unpack_with_custom_annotation(annotation: type):
     while(is_custom(annotation) or is_union(annotation) or is_annotated(annotation)):
         annotation = get_args(annotation)[0]
     return annotation
+
 def is_union(annotation: type):
     return get_origin(annotation) == Union
 
@@ -36,7 +38,9 @@ def is_object(annotation: type):
 
 def is_custom(annotation: type):
     return get_origin(annotation) == Custom
- 
+
+def is_datetime(annotation: type):
+    return annotation == datetime 
 
 def is_boolean(annotation: type):
     return annotation == FormBoolean or annotation == bool 
@@ -100,18 +104,21 @@ def to_form_field(field_name: str, field: FieldInfo)->FormField:
     if field_schema is None:
         field_schema = {}
     validation_rules = get_validation_rules(field_schema.get('label', field_name), field)
+    logger.info(f'schema: {field_schema}')
     field_definition = {
         'name': field_name,
         'validation_rules': validation_rules,
         'default': field.default,
         'meta': field.json_schema_extra
     } | field_schema
-    
     logger.debug(f'{field_name} = annotation: {annotation}, schema: {field_definition}, validation rules: {validation_rules}')
+    
     try:
         annotation = unpack_annotation(annotation)
         if is_custom(annotation):
             return CustomField.model_validate(field_definition)
+        elif is_datetime(annotation):
+            return DateTimeField.model_validate(field_definition)
         elif is_select(annotation):
             choices = []
             for enum_member in annotation:
@@ -203,31 +210,3 @@ class FormModel(BaseModel):
         for file_data_field in self.file_data_fields():
              self.save_file(directory, file_data_field)
         return self
-
-            
-    # def save_files(self, directory: PathLike):
-    #     for field_name, field_info in self.model_fields.items():
-    #         annotation = field_info.annotation
-    #         annotation = unpack_annotation(annotation)
-
-    #         if is_list(annotation):
-    #             list_item_type = get_list_item_type(annotation)
-    #             if is_union(list_item_type):
-    #                 list_item_type = unpack_annotation(list_item_type)
-    #             logger.debug(f'list with child item type: {list_item_type}')
-    #             if is_file(list_item_type):
-    #                 for file_data in getattr(self, field_name):
-    #                     file_data.path = Path(directory).joinpath(file_data.name).as_posix()
-    #                     self.save_file(directory, file_data)
-    #             elif is_object(list_item_type):
-    #                 for item in getattr(self, field_name):
-    #                     get_object_type(list_item_type).model_validate(item).save_files(directory)
-    #         elif is_file(annotation):
-    #             file_data: Base64File = getattr(self, field_name)
-    #             if file_data:
-    #                 file_data.path = Path(directory).joinpath(file_data.name).as_posix()
-    #                 self.save_file(directory, file_data)
-    #         elif is_object(annotation):
-    #             get_object_type(annotation).model_validate(getattr(self, field_name)).save_files(directory)
-
-
