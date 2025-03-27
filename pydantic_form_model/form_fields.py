@@ -64,8 +64,8 @@ class LessThan(GreaterThan):
     name: Literal[ValidationRuleName.LESS_THAN] = ValidationRuleName.LESS_THAN
 
 class RenderCondition(BaseModel):
-    other_field_name: str
-    has_value: bool = True
+    property_path: str
+    has_value: Any = None
 
 class FormFieldType(str, Enum):
     OBJECT = 'object'
