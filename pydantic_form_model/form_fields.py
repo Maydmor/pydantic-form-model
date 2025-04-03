@@ -66,6 +66,7 @@ class LessThan(GreaterThan):
 class RenderCondition(BaseModel):
     property_path: str
     has_value: Any = None
+    render_conditions: list['RenderCondition'] = []
 
 class FormFieldType(str, Enum):
     OBJECT = 'object'
@@ -83,9 +84,11 @@ class FormField(BaseModel):
     field_type: FormFieldType
     name: str
     hint: Optional[str] = None
+    field_index: Optional[int] = 1e7
+
     default: Optional[Any] = None
     rendered: Optional[bool] = True
-    render_condition: Optional[RenderCondition] = None
+    render_conditions: list[RenderCondition] = []
     label: Optional[str] = None
     validation_rules: list[ValidationRule] = []
     item_definition: Optional[Any] = None
