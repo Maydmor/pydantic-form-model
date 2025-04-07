@@ -14,6 +14,9 @@ T = TypeVar('T')
 
 DataSource = str
 
+class BaseSchema(BaseModel):
+    model_config: ConfigDict = ConfigDict(alias_generator=camelize, populate_by_name=True)
+
 
 
 # FormValue = FormList|FormObject|FormText|FormNumber|FormSelect|FormBoolean|FormFile
@@ -27,8 +30,7 @@ class ValidationRuleName(str, Enum):
     GREATER_THAN = 'greater_than'
     LESS_THAN = 'less_than'
 
-class ValidationRule(BaseModel):
-    model_config: ConfigDict = ConfigDict(alias_generator=camelize, populate_by_name=True)
+class ValidationRule(BaseSchema):
     name: ValidationRuleName
     error_text: str
     other_field_name: Optional[str] = None
@@ -63,7 +65,7 @@ class GreaterThan(ValidationRule):
 class LessThan(GreaterThan):
     name: Literal[ValidationRuleName.LESS_THAN] = ValidationRuleName.LESS_THAN
 
-class RenderCondition(BaseModel):
+class RenderCondition(BaseSchema):
     property_path: str
     has_value: Any = None
     render_conditions: list['RenderCondition'] = []
@@ -79,13 +81,12 @@ class FormFieldType(str, Enum):
     BOOLEAN = 'boolean'
 
 
-class FormField(BaseModel):
+class FormField(BaseSchema):
     model_config: ConfigDict = ConfigDict(alias_generator=lambda name: camelize(name), populate_by_name=True)
     field_type: FormFieldType
     name: str
     hint: Optional[str] = None
     field_index: Optional[int] = 1e7
-
     default: Optional[Any] = None
     rendered: Optional[bool] = True
     render_conditions: list[RenderCondition] = []

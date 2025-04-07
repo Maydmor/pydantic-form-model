@@ -1,4 +1,3 @@
-from pydantic import BaseModel, PydanticUndefinedAnnotation
 from .form_fields import *
 from .types import *
 from typing import get_origin, get_args, Union, Annotated
@@ -95,8 +94,7 @@ def get_validation_rules(field_name: str, field: FieldInfo):
     if field.is_required():
         validation_rules.append(Required(error_text=f'{field_name} is required.'))
     return validation_rules
-class SomeENum(Enum):
-    pass
+
 def to_form_field(field_name: str, field: FieldInfo)->FormField:
     annotation = field.annotation
     field_schema = field.json_schema_extra
@@ -152,7 +150,7 @@ def to_form_field(field_name: str, field: FieldInfo)->FormField:
         raise e
 
 
-class FormModel(BaseModel):
+class FormModel(BaseSchema):
     @classmethod
     def get_form_fields(cls)->list[FormField]:
         fields = []
