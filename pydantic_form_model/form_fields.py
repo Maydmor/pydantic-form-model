@@ -86,6 +86,7 @@ class FormField(BaseSchema):
     field_type: FormFieldType
     name: str
     hint: Optional[str] = None
+    style: Optional[str] = None
     field_index: Optional[int] = 1e7
     default: Optional[Any] = None
     rendered: Optional[bool] = True
