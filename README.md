@@ -1,2 +1,5 @@
 # pydantic-forms
 pydantic-form-model is a Python library that lets you easily define dynamic, structured forms using Pydantic classes and serve form definitions from your backend application. By calling the .to_form_fields() method on your form model, you get a JSON-serializable FormField object that includes validation rules, labels, hints, styling, render conditions, and more. It supports a wide range of field types—including NumberFields, TextFields, DateTimeFields, FileFields, SelectFields, BooleanFields, as well as nested ListFields and ObjectFields—making it ideal for building complex, customizable form UIs directly from Python code.
+
+
+Best used in conjunction with a FastAPI backend which serializes pydantic objects per default and vue-dynamic-headless-forms for a frontend integration that can be used to parse and render the form fields.
