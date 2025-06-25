@@ -104,6 +104,7 @@ class FormField(BaseSchema):
     choices: Optional[list[Any]] = None
     data_source: Optional[DataSource] = None
     item_value: Optional[str] = None
+    radios: Optional[bool] = None
     item_text: Optional[str] = None
     item_properties: Optional[list[Any]] = None
     meta: Optional[dict[str, Any]] = {}
@@ -127,6 +128,7 @@ class SelectField(FormField):
     data_source: Optional[DataSource] = None
     item_value: Optional[str] = None
     item_text: Optional[str] = None
+    radios: Optional[bool] = None
 
 class BooleanField(FormField):
     field_type: Literal[FormFieldType.BOOLEAN] = FormFieldType.BOOLEAN
@@ -160,6 +162,7 @@ def FField(  # noqa: C901
     label: Optional[str] = _Unset,
     validation_rules: Optional[list[ValidationRule]] = [],
     choices: Optional[list[Any]] = _Unset,
+    radios: Optional[bool] = _Unset,
     alias_priority: int | None = _Unset,
     validation_alias: str | AliasPath | AliasChoices | None = _Unset,
     serialization_alias: str | None = _Unset,
@@ -277,6 +280,7 @@ def FField(  # noqa: C901
         label = label,
         validation_rules = validation_rules,
         choices = choices,
+        radios=radios,
         alias_priority = alias_priority,
         validation_alias = validation_alias,
         serialization_alias = serialization_alias,

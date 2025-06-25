@@ -9,6 +9,9 @@ import inspect, base64
 from os import PathLike
 from pathlib import Path
 from datetime import datetime
+import inspect
+from fastapi import Form, UploadFile, Depends
+from typing import Annotated
 logger = logging.getLogger(__name__)
 logger.debug('Test message')
 
@@ -149,6 +152,20 @@ def to_form_field(field_name: str, field: FieldInfo)->FormField:
         e.message = f'Invalid field {field_name}: {e.message}'
         raise e
 
+def to_multipart_form_field(field_name: str, field: FieldInfo):
+    annotation = field.annotation
+    try:
+        annotation = unpack_with_custom_annotation(annotation)
+        if is_object(annotation):
+            pass
+        elif is_list(annotation):
+            pass
+        elif is_file(annotation):
+            pass
+        
+    except InvalidDefinitionException as e:
+        e.message = f'Invalid field {field_name}: {e.message}'
+        raise e
 
 class FormModel(BaseSchema):
     @classmethod
@@ -160,6 +177,62 @@ class FormModel(BaseSchema):
                 fields.append(form_field)
         return fields
     
+    @classmethod
+    def as_multipart_form(cls):
+        def __init__(self, **kwargs):
+            # constructor for dynamically created classes.
+            for k,v in kwargs.items():
+                setattr(self, k, v)
+        parameters = []
+        annotations = {}
+        for field_name, field_info in cls.model_fields.items():
+            annotation = unpack_with_custom_annotation(field_info.annotation)
+            field_annotation = Annotated[annotation, Form(...)]
+            if is_object(annotation):
+                sub_form = get_object_type(annotation).as_multipart_form()
+                field_annotation = Annotated[sub_form, Depends()]
+                # parameter_default = Depends(...)
+            elif is_list(annotation):
+                list_item_type = get_list_item_type(annotation)
+                if is_object(list_item_type) or is_list(list_item_type):
+                    raise InvalidDefinitionException(f'Field "{field_name}" in {cls.__name__}: Nested lists and lists of complex objects are not supported.')
+                if is_file(list_item_type):
+                    field_annotation = Annotated[list[bytes], list[UploadFile(...)]]
+                else:
+                    field_annotation = Annotated[list[list_item_type], list[Form(...)]]
+                
+            elif is_file(annotation):
+                field_annotation = Annotated[bytes, UploadFile(...)]
+            elif is_text(annotation):
+                pass
+            elif is_number(annotation):
+                pass
+            elif is_boolean(annotation):
+                pass
+            elif is_select(annotation):
+                pass
+            else:
+                raise InvalidDefinitionException(f'Invalid field definition {field_name}: {annotation}')
+            annotations[field_name] = field_annotation
+            # inspect.Parameter(inspect.Parameter.)
+            parameters.append(
+                inspect.Parameter(
+                    name=field_name,
+                    kind=inspect.Parameter.POSITIONAL_OR_KEYWORD,
+                    default=inspect.Parameter.empty,
+                    annotation=field_annotation
+                )
+            )
+        class_name = f'Multipart{cls.__name__}'
+        create_parameters = {
+            '__init__': __init__,
+            '__annotations__': annotations,
+            '__signature__': inspect.Signature(parameters)
+        }
+        print(f'Signature: {inspect.Signature(parameters)}')
+        print(f'Create {class_name} as {create_parameters}')
+        return type(class_name,(object,),create_parameters )
+
     def save_file(self, directory: PathLike, file_data: Base64File):
         file_data = Base64FileData.model_validate(file_data)
         if file_data.data:

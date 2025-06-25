@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "pydantic-form-model"
-version = "0.3.0"
+version = "0.4.0"
 description = ""
 authors = ["leibetsederjakob <leibetsederjakob@gmail.com>"]
 license = "MIT"
@@ -10,7 +10,12 @@ readme = "README.md"
 python = "^3.12"
 pydantic = "^2.9.2"
 pyhumps = "^3.8.0"
+fastapi = "^0.115.12"
 
+
+[tool.poetry.group.dev.dependencies]
+uvicorn = {extras = ["standard"], version = "^0.34.2"}
+python-multipart = "^0.0.20"
 
 [build-system]
 requires = ["poetry-core"]
