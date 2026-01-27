@@ -1,12 +1,11 @@
-from typing import Any, Sequence, TypeVar, Generic
+from typing import Any, TypeVar, Generic
 
-from pydantic_core import ValidationError, core_schema
+from pydantic_core import core_schema
 from typing_extensions import get_args
-import base64
-from pydantic import BaseModel, GetCoreSchemaHandler, field_serializer, FieldSerializationInfo
+from pydantic import BaseModel, GetCoreSchemaHandler
 from typing import get_origin, Optional
 from os import PathLike
-from io import BytesIO
+
 T = TypeVar('T')
 
 

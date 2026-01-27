@@ -11,7 +11,7 @@ from pathlib import Path
 from datetime import datetime
 import inspect
 from fastapi import Form, UploadFile, Depends
-from typing import Annotated
+from typing import Annotated, Sequence
 logger = logging.getLogger(__name__)
 logger.debug('Test message')
 
@@ -30,7 +30,7 @@ def is_union(annotation: type):
     return get_origin(annotation) == Union
 
 def is_list(annotation: type):
-    return get_origin(annotation) == list or get_origin == Sequence
+    return get_origin(annotation) == list or get_origin(annotation) == Sequence
 
 def is_dict(annotation: type):
     return annotation == dict
