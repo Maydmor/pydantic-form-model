@@ -164,15 +164,15 @@ class UserRegisterForm(FormModel):
     terms_of_service_agreed: bool = FField(label='I agree to the terms and conditions')
     some_file: list[Base64File] = FField(label='Upload Files')
 
-@app.get("/form-definition")
+@app.get("/form-definition", response_model=list[FormField])
 def get_form_definition():
-    form_definition = UserRegisterForm.get_form_fields()
-    return {"form": [field.model_dump() for field in form_definition]}
+    form_fields: list[FormField] = UserRegisterForm.get_form_fields()
+    return form_fields
 
 @app.post("/submit-form")
-def submit_form(form_data: MUserRegisterForm = Depends()):
+def submit_form(form_data: UserRegisterForm = Depends()):
     form_data.save_files(directory="uploads")
-    return {"message": "Form submitted successfully"}
+    return {"message": f'Form submitted successfully and user {form_data.username} created.'}
 ```
 
 With `pydantic-form-model`, you can easily define, serve, and handle forms in FastAPI, leveraging its powerful features like automatic form generation, nested forms, file handling, and customizable field properties. This makes it an excellent choice for building dynamic and structured form-based APIs.
