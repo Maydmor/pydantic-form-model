@@ -34,7 +34,7 @@ class UserRegisterForm(FormModel):
     credentials: RegisterCredentials = FField(label='Register')
     address: Address = FField(label='Address')
     terms_of_service_agreed: bool = FField(label='I agree to the terms and conditions')
-
+# UserRegisterForm.get_form_fields()
 form_data = {form_field.name: form_field.model_dump() for form_field in UserLoginForm.get_form_fields()}
 pretty_printer = pprint.PrettyPrinter(depth=100)
 pretty_printer.pprint(form_data)
