@@ -90,7 +90,7 @@ class FormFieldType(str, Enum):
 
 class FormField(BaseSchema):
     model_config: ConfigDict = ConfigDict(alias_generator=lambda name: camelize(name), populate_by_name=True)
-    field_type: FormFieldType
+    field_type: FormFieldType|str
     name: str
     hint: Optional[str] = None
     style: Optional[str] = None
