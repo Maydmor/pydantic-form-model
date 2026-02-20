@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "pydantic-form-model"
-version = "0.5.0"
+version = "0.5.1"
 description = ""
 authors = ["leibetsederjakob <leibetsederjakob@gmail.com>"]
 license = "MIT"

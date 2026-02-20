@@ -287,11 +287,25 @@ class FormModel(BaseSchema):
     
     def load_file_data(self, directory: PathLike):
         for file_data_field in self.file_data_fields():
-            with open(Path(directory).joinpath(file_data_field.name), 'rb') as f:
+            file_path = Path(directory).joinpath(file_data_field.name)
+            with open(file_path, 'rb') as f:
                 file_data_field.data = base64.b64encode(f.read()).decode()
+            file_data_field.path = file_path
         return self
 
     def save_files(self, directory: PathLike):
         for file_data_field in self.file_data_fields():
             self.save_file(directory, file_data_field)
+        return self
+    
+    def delete_files_from_directory(self, directory: PathLike, missing_ok: bool = False):
+        for file_field in self.file_data_fields():
+            file_path = Path(directory).joinpath(file_field.name)
+            file_path.unlink(missing_ok=missing_ok)
+        return self
+    
+    def delete_files(self, missing_ok: bool = False):
+        for file_field in self.file_data_fields():
+            file_path = Path(file_field.path)
+            file_path.unlink(missing_ok=missing_ok)
         return self
