@@ -30,11 +30,10 @@ class File(Generic[T]):
 class Base64FileData(BaseModel):
     data: Optional[str] = None
     name: Optional[str] = None
-
     
 
 class Base64File(Base64FileData, File[Base64FileData]):
-    pass
+    path: Optional[str] = None
 
 class Custom(Generic[T]):
 

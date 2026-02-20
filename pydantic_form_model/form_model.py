@@ -233,11 +233,14 @@ class FormModel(BaseSchema):
         print(f'Create {class_name} as {create_parameters}')
         return type(class_name,(object,),create_parameters )
 
-    def save_file(self, directory: PathLike, file_data: Base64File):
+    def save_file(self, directory: PathLike, file: Base64File):
+        file_data = file
         file_data = Base64FileData.model_validate(file_data)
         if file_data.data:
-            with open(f'{directory}/{file_data.name}', 'wb') as f:
+            file_path = f'{directory}/{file_data.name}'
+            with open(file_path, 'wb') as f:
                 f.write(base64.b64decode(file_data.data))
+            file.path = file_path
 
     def file_data_fields(self):
         file_data_fields = []
@@ -271,6 +274,17 @@ class FormModel(BaseSchema):
             file_data_field.data = None
         return self
     
+    def load_files(self, allow_not_stored: bool = True):
+        for file_field in self.file_data_fields():
+            if not file_field.path:
+                if allow_not_stored:
+                    logger.warning(f'{file_field.name} has no stored path. skipping')
+                    continue
+                raise Exception(f'{file_field.name} has no path and is not stored on disk. Consider setting allow_not_stored = True or make sure that path is set.')
+            with open(Path(file_field.path), 'rb') as f:
+                file_field.data = base64.b64encode(f.read()).decode()
+        return self
+    
     def load_file_data(self, directory: PathLike):
         for file_data_field in self.file_data_fields():
             with open(Path(directory).joinpath(file_data_field.name), 'rb') as f:
@@ -279,5 +293,5 @@ class FormModel(BaseSchema):
 
     def save_files(self, directory: PathLike):
         for file_data_field in self.file_data_fields():
-             self.save_file(directory, file_data_field)
+            self.save_file(directory, file_data_field)
         return self
