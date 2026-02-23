@@ -33,7 +33,7 @@ class Base64FileData(BaseModel):
     
 
 class Base64File(Base64FileData, File[Base64FileData]):
-    path: Optional[str] = None
+    path: Optional[str|PathLike] = None
 
 class Custom(Generic[T]):
 
