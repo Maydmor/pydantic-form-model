@@ -237,7 +237,7 @@ class FormModel(BaseSchema):
         file_data = file
         file_data = Base64FileData.model_validate(file_data)
         if file_data.data:
-            file_path = f'{directory}/{file_data.name}'
+            file_path = Path(f'{directory}/{file_data.name}').as_posix()
             with open(file_path, 'wb') as f:
                 f.write(base64.b64decode(file_data.data))
             file.path = file_path
@@ -290,7 +290,7 @@ class FormModel(BaseSchema):
             file_path = Path(directory).joinpath(file_data_field.name)
             with open(file_path, 'rb') as f:
                 file_data_field.data = base64.b64encode(f.read()).decode()
-            file_data_field.path = file_path
+            file_data_field.path = file_path.as_posix()
         return self
 
     def save_files(self, directory: PathLike):
