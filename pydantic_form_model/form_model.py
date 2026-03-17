@@ -117,7 +117,12 @@ def to_form_field(field_name: str, field: FieldInfo)->FormField:
     try:
         annotation = unpack_annotation(annotation)
         if is_custom(annotation):
-            return CustomField.model_validate(field_definition)
+            inner_annotation = unpack_with_custom_annotation(annotation)
+            choices = []
+            if is_select(inner_annotation):
+                for enum_member in inner_annotation:
+                    choices.append(enum_member.value)
+            return CustomField.model_validate(field_definition | {'choices': choices})
         elif is_datetime(annotation):
             return DateTimeField.model_validate(field_definition)
         elif is_select(annotation):
